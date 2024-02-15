@@ -5,3 +5,9 @@
 ```bash
 cp .env.template .env
 ```
+
+## Run
+
+```bash
+yarn dev
+```

@@ -7,8 +7,8 @@ const app = express()
 app.use(express.json())
 const port = 3001
 
-app.get('/', (req: Request, res: Response) => {
-    res.send('Hello World!')
+app.get('/_health', (req: Request, res: Response) => {
+    res.send('OK')
 })
 
 const subscriptionSchema = z.object({

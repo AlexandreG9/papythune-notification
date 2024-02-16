@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import {NextFunction, Request, Response} from 'express'
 import express from 'express';
 import {AnyZodObject, z} from "zod";
@@ -9,6 +10,19 @@ const port = 3001
 
 app.get('/_health', (req: Request, res: Response) => {
     res.send('OK')
+})
+
+/**
+ * Return VAPID public key
+ */
+app.get('/key', (req: Request, res: Response) => {
+    const publicKey = process.env.VAPID_PUBLIC_KEY;
+
+    if (!publicKey) {
+        return res.status(500).json({message: 'Internal server error'});
+    }
+
+    return res.json({publicKey});
 })
 
 const subscriptionSchema = z.object({

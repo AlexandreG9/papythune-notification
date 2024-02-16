@@ -3,6 +3,7 @@ import {NextFunction, Request, Response} from 'express'
 import express from 'express';
 import {AnyZodObject, z} from "zod";
 import {createSubscription} from "./repository/SubscriptionRepositoryService";
+import {sendPushNotification} from "./service/PushNotificationService";
 
 const app = express()
 app.use(express.json())
@@ -35,6 +36,15 @@ const subscriptionSchema = z.object({
     })
 })
 
+const pushNotificationSchema = z.object({
+    body: z.object({
+        senderEmail: z.string().email(),
+        title: z.string(),
+        body: z.string(),
+        icon: z.string().optional(),
+    })
+})
+
 const validate = (schema: AnyZodObject) =>
     async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -58,6 +68,19 @@ app.post('/subscribe', validate(subscriptionSchema), async (req: Request, res: R
         return res.status(201).json({message: 'Subscription created'});
     } catch (error) {
         console.error(error);
+        return res.status(500).json({message: 'Internal server error'});
+    }
+})
+
+/**
+ * Push notification
+ */
+app.post('/push', validate(pushNotificationSchema), async (req: Request, res: Response) => {
+    try {
+        await sendPushNotification(req.body.senderEmail, req.body.title, req.body.body, req.body.icon);
+        return res.status(201).json({message: 'Push notification sent'});
+    } catch (e) {
+        console.error(e);
         return res.status(500).json({message: 'Internal server error'});
     }
 })

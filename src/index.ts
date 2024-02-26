@@ -1,16 +1,18 @@
 import 'dotenv/config'
 import {NextFunction, Request, Response} from 'express'
 import express from 'express';
+import cors from 'cors';
 import {AnyZodObject, z} from "zod";
 import {createSubscription} from "./repository/SubscriptionRepositoryService";
 import {sendPushNotification} from "./service/PushNotificationService";
 
 const app = express()
+app.use(cors())
 app.use(express.json())
 const port = 3001
 
 app.get('/_health', (req: Request, res: Response) => {
-    res.send('OK')
+    res.send(JSON.stringify({status: 'UP'}))
 })
 
 /**
@@ -30,9 +32,11 @@ const subscriptionSchema = z.object({
     body: z.object({
         email: z.string().email(),
         endpoint: z.string().url(),
-        authKey: z.string(),
-        p256dh: z.string(),
-        expirationTime: z.string().optional(),
+        keys: z.object({
+            p256dh: z.string(),
+            auth: z.string(),
+        }),
+        expirationTime: z.string().nullish().optional(),
     })
 })
 
@@ -64,7 +68,7 @@ const validate = (schema: AnyZodObject) =>
  */
 app.post('/subscribe', validate(subscriptionSchema), async (req: Request, res: Response) => {
     try {
-        await createSubscription(req.body.email, req.body.endpoint, req.body.authKey, req.body.p256dh);
+        await createSubscription(req.body.email, req.body.endpoint, req.body.keys.auth, req.body.keys.p256dh);
         return res.status(201).json({message: 'Subscription created'});
     } catch (error) {
         console.error(error);

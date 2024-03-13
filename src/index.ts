@@ -5,6 +5,7 @@ import cors from 'cors';
 import {AnyZodObject, z} from "zod";
 import {createSubscription} from "./repository/SubscriptionRepositoryService";
 import {sendPushNotification} from "./service/PushNotificationService";
+import {authMiddleware} from "./middleware/AuthMiddleware";
 
 const app = express()
 app.use(cors())
@@ -79,7 +80,7 @@ app.post('/subscribe', validate(subscriptionSchema), async (req: Request, res: R
 /**
  * Push notification
  */
-app.post('/push', validate(pushNotificationSchema), async (req: Request, res: Response) => {
+app.post('/push', authMiddleware, validate(pushNotificationSchema), async (req: Request, res: Response) => {
     try {
         await sendPushNotification(req.body.senderEmail, req.body.title, req.body.body, req.body.icon);
         return res.status(201).json({message: 'Push notification sent'});

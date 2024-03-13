@@ -1,4 +1,4 @@
-export type SubscriptionDomain = {
+export type SubscriptionModel = {
     userEmail: string;
     endpoint: string;
     auth: string;

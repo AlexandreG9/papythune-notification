@@ -1,5 +1,5 @@
 import {PrismaClient} from "@prisma/client"
-import {SubscriptionDomain} from "../domain/SubscriptionDomain";
+import {SubscriptionModel} from "../model/SubscriptionModel";
 
 const prisma = new PrismaClient()
 
@@ -26,7 +26,7 @@ export const createSubscription = async (email: string, endpoint: string, authKe
  * Find subscriptions to send
  * @param email user who sent notification
  */
-export const findSubscriptionsToSend = (email: string): Promise<SubscriptionDomain[]> => {
+export const findSubscriptionsToSend = (email: string): Promise<SubscriptionModel[]> => {
     return prisma.subscription.findMany({
         where: {
             NOT: {user: {email}}

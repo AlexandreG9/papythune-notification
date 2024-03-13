@@ -18,25 +18,17 @@ afterAll(() => {
 describe("AuthenticationRepository", () => {
     test("should accept token", async () => {
         const isAllowed = await checkAccessToken(validAccessToken);
-        expect(isAllowed).toBe(true);
+        expect(isAllowed).toBeNull();
     })
 
     test("should throw an error for an expired access token", async () => {
-        try {
-            await checkAccessToken(expiredAccessToken);
-        } catch (e) {
-            // @ts-ignore
-            expect(e.message).toBe('API Key expired');
-        }
+        const result = await checkAccessToken(expiredAccessToken);
+        expect(result).toBe('API Key expired');
     })
 
     test("should throw an error for an invalid access token", async () => {
-        try {
-            await checkAccessToken('invalid');
-        } catch (e) {
-            // @ts-ignore
-            expect(e.message).toBe('Invalid API Key');
-        }
+        const result = await checkAccessToken('invalid');
+        expect(result).toBe('Invalid API Key');
     })
 })
 

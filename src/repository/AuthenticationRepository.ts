@@ -2,6 +2,11 @@ import {PrismaClient} from "@prisma/client";
 
 const prisma = new PrismaClient()
 
+/**
+ * Check if the API Key is valid and not expired
+ * @param apiKey
+ * @returns null if valid, error message if not
+ */
 export const checkAccessToken = async (apiKey: string) => {
     const accessToken = await prisma.accessToken.findFirst({
         where: {
@@ -13,14 +18,14 @@ export const checkAccessToken = async (apiKey: string) => {
     });
 
     if (!accessToken) {
-        throw new Error('Invalid API Key');
+        return 'Invalid API Key';
     }
 
     if (accessToken.expirationDateTime > new Date()) {
         await updateLastUsed(apiKey);
-        return true;
+        return null;
     } else {
-        throw new Error('API Key expired');
+        return 'API Key expired';
     }
 }
 
